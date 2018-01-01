@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from os import listdir
 import sys
+import csv
 
 # Here iterate through the list of XML files
 
@@ -12,6 +13,7 @@ placeAPs = {}
 cbAPs = {}
 personAPs = {}
 
+
 subject_objects = []
 place_objects = []
 cb_objects = []
@@ -22,13 +24,13 @@ for filename in filenames:
 	eadfile = folder + '/' + filename
 	tree = ET.parse(eadfile)
 	root = tree.getroot()
-	subjects = root.findall(".//{urn:isbn:1-931666-22-9}subject")
+	subjects = root.findall(".//{urn:isbn:1-931666-22-9}controlaccess/{urn:isbn:1-931666-22-9}subject")
 	subject_objects = subject_objects + subjects
 	places = root.findall(".//{urn:isbn:1-931666-22-9}geogname")
 	place_objects = place_objects + places
-	corporate_bodies = root.findall(".//{urn:isbn:1-931666-22-9}corpname")
+	corporate_bodies = root.findall(".//{urn:isbn:1-931666-22-9}controlaccess/{urn:isbn:1-931666-22-9}controlaccess/{urn:isbn:1-931666-22-9}corpname")
 	cb_objects = cb_objects + corporate_bodies
-	people = root.findall(".//{urn:isbn:1-931666-22-9}persname")
+	people = root.findall(".//{urn:isbn:1-931666-22-9}controlaccess/{urn:isbn:1-931666-22-9}persname")
 	person_objects = person_objects + people
 
 
@@ -114,6 +116,72 @@ for person in person_objects:
 			instance['authfilenumber'] = ''
 		personAPs[person.text] = instance
 
-print (personAPs)
+
+# Print the results in tables
+
+table_subjects = folder + '_subjects.csv'
+table_places = folder + '_places.csv'
+table_cbs = folder + '_cbs.csv'
+table_person = folder + '_personalities.csv'
+table_creators = folder + '_creators.csv'
+
+with open (table_subjects, 'w') as csvtable:
+	fields=['Text', 'Source', 'AuthFileNr', 'Frequency']
+	writer = csv.DictWriter(csvtable, fieldnames=fields)
+	writer.writeheader()
+	for item in subjectAPs:
+		writer.writerow({'Text':subjectAPs[item]['text'], 'Source':subjectAPs[item]['source'], 'AuthFileNr':subjectAPs[item]['authfilenumber'], 'Frequency':subjectAPs[item]['counter']})
+
+with open (table_places, 'w') as csvtable:
+	fields=['Text', 'Source', 'AuthFileNr', 'Frequency']
+	writer = csv.DictWriter(csvtable, fieldnames=fields)
+	writer.writeheader()
+	for item in placeAPs:
+		writer.writerow({'Text':placeAPs[item]['text'], 'Source':placeAPs[item]['source'], 'AuthFileNr':placeAPs[item]['authfilenumber'], 'Frequency':placeAPs[item]['counter']})
+
+with open (table_cbs, 'w') as csvtable:
+	fields=['Text', 'Source', 'AuthFileNr', 'Frequency']
+	writer = csv.DictWriter(csvtable, fieldnames=fields)
+	writer.writeheader()
+	for item in cbAPs:
+		writer.writerow({'Text':cbAPs[item]['text'], 'Source':cbAPs[item]['source'], 'AuthFileNr':cbAPs[item]['authfilenumber'], 'Frequency':cbAPs[item]['counter']})
+
+with open (table_person, 'w') as csvtable:
+	fields=['Text', 'Source', 'AuthFileNr', 'Frequency']
+	writer = csv.DictWriter(csvtable, fieldnames=fields)
+	writer.writeheader()
+	for item in personAPs:
+		writer.writerow({'Text':personAPs[item]['text'], 'Source':personAPs[item]['source'], 'AuthFileNr':personAPs[item]['authfilenumber'], 'Frequency':personAPs[item]['counter']})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
